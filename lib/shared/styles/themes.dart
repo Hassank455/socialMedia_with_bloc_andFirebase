@@ -17,6 +17,7 @@ ThemeData darkTheme = ThemeData(
     backgroundColor: HexColor('333739'),
     elevation: 0.0,
     titleTextStyle: TextStyle(
+      fontFamily: 'Jannah',
       color: Colors.white,
       fontSize: 20.0,
       fontWeight: FontWeight.bold,
@@ -38,6 +39,12 @@ ThemeData darkTheme = ThemeData(
       fontWeight: FontWeight.w600,
       color: Colors.white,
     ),
+    subtitle1: TextStyle(
+      fontSize: 14.0,
+      fontWeight: FontWeight.w600,
+      color: Colors.white,
+      height: 1.3,
+    ),
   ),
   fontFamily: 'Jannah',
 );
@@ -55,6 +62,7 @@ ThemeData lightTheme = ThemeData(
     backgroundColor: Colors.white,
     elevation: 0.0,
     titleTextStyle: TextStyle(
+      fontFamily: 'Jannah',
       color: Colors.black,
       fontSize: 20.0,
       fontWeight: FontWeight.bold,
@@ -75,6 +83,12 @@ ThemeData lightTheme = ThemeData(
       fontSize: 18.0,
       fontWeight: FontWeight.w600,
       color: Colors.black,
+    ),
+    subtitle1: TextStyle(
+      fontSize: 14.0,
+      fontWeight: FontWeight.w600,
+      color: Colors.black,
+      height: 1.3,
     ),
   ),
   fontFamily: 'Jannah',

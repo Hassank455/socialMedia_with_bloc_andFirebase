@@ -38,6 +38,7 @@ android {
         applicationId "com.example.social_media_app_moh"
         minSdkVersion 21
         targetSdkVersion 30
+        multiDexEnabled true
         ndkVersion '21.3.6528147'
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

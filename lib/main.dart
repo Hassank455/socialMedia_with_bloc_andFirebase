@@ -1,13 +1,16 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_media_app_moh/layout/social_layout.dart';
 import 'package:social_media_app_moh/modules/login_screen/login_screen.dart';
 import 'package:social_media_app_moh/shared/bloc_observer.dart';
+import 'package:social_media_app_moh/shared/components/constants.dart';
 import 'package:social_media_app_moh/shared/cubit/cubit.dart';
 import 'package:social_media_app_moh/shared/cubit/states.dart';
 import 'package:social_media_app_moh/shared/network/local/cache_helper.dart';
 import 'package:social_media_app_moh/shared/styles/themes.dart';
 
+import 'layout/cubit/cubit.dart';
 import 'modules/on_boarding/on_boarding_screen.dart';
 
 void main() async {
@@ -23,7 +26,13 @@ void main() async {
 
   Widget widget;
 
-  bool onBoarding = CacheHelper.getData(key: 'onBoarding');
+  uId = CacheHelper.getData(key: 'uid');
+
+  if (uId != null) {
+    widget = SocialLayout();
+  } else {
+    widget = LoginScreen();
+  }
 
   runApp(MyApp(
     isDark: isDark,
@@ -50,9 +59,9 @@ class MyApp extends StatelessWidget {
               fromShared: isDark,
             ),
         ),
-        /* BlocProvider(
-          create: (BuildContext context) => ShopCubit()..getHomeData()..getCategories()..getFavorites()..getUserData(),
-        ),*/
+        BlocProvider(
+          create: (BuildContext context) => SocialCubit()..getUserData(),
+        ),
       ],
       child: BlocConsumer<AppCubit, AppStates>(
         listener: (context, state) {},
@@ -61,9 +70,9 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: lightTheme,
             darkTheme: darkTheme,
-            themeMode:
-                AppCubit.get(context).isDark ? ThemeMode.dark : ThemeMode.light,
-            home: LoginScreen(),
+            //themeMode: AppCubit.get(context).isDark ? ThemeMode.dark : ThemeMode.light,
+            themeMode: ThemeMode.light,
+            home: startWidget,
           );
         },
       ),

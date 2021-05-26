@@ -24,15 +24,12 @@ class SocialRegisterCubit extends Cubit<SocialRegisterStates> {
       password: password,
     )
         .then((value) {
-      print(value.user.email);
-      print(value.user.uid);
       userCreate(
         uid: value.user.uid,
         name: name,
         phone: phone,
         email: email,
       );
-      emit(SocialRegisterSuccessState());
     }).catchError((error) {
       emit(SocialRegisterErrorState(error.toString()));
     });
@@ -48,7 +45,11 @@ class SocialRegisterCubit extends Cubit<SocialRegisterStates> {
       name: name,
       email: email,
       phone: phone,
-      uid: uid,
+      uId: uid,
+      bio: 'write your bio ...',
+      cover: 'https://image.freepik.com/free-photo/photo-attractive-bearded-young-man-with-cherful-expression-makes-okay-gesture-with-both-hands-likes-something-dressed-red-casual-t-shirt-poses-against-white-wall-gestures-indoor_273609-16239.jpg',
+      image: 'https://image.freepik.com/free-photo/photo-attractive-bearded-young-man-with-cherful-expression-makes-okay-gesture-with-both-hands-likes-something-dressed-red-casual-t-shirt-poses-against-white-wall-gestures-indoor_273609-16239.jpg',
+      isEmailVerified: false,
     );
     FirebaseFirestore.instance
         .collection('users')
@@ -57,7 +58,6 @@ class SocialRegisterCubit extends Cubit<SocialRegisterStates> {
         .then((value) {
       emit(SocialCreateUserSuccessState());
     }).catchError((error) {
-      
       emit(SocialCreateUserErrorState(error.toString()));
     });
   }
