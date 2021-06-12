@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:social_media_app_moh/layout/cubit/states.dart';
+import 'package:social_media_app_moh/models/post_model.dart';
 import 'package:social_media_app_moh/models/user_model.dart';
 import 'package:social_media_app_moh/modules/chats/chat_screen.dart';
 import 'package:social_media_app_moh/modules/feeds/feeds_screen.dart';
@@ -210,4 +211,157 @@ class SocialCubit extends Cubit<SocialStates> {
       emit(SocialUserUpdateErrorState());
     });
   }
+
+  File postImage;
+
+  Future<void> getPostImage() async {
+    final pickedFile = await picker.getImage(
+      source: ImageSource.gallery,
+    );
+
+    if (pickedFile != null) {
+      postImage = File(pickedFile.path);
+      emit(SocialPostImagePickedSuccessState());
+    } else {
+      print('No image selected.');
+      emit(SocialPostImagePickedErrorState());
+    }
+  }
+
+  void removePostImage() {
+    postImage = null;
+    emit(SocialRemovePostImageState());
+  }
+
+  void uploadPostImage({
+    @required String dateTime,
+    @required String text,
+  }) {
+    emit(SocialCreatePostLoadingState());
+
+    firebase_storage.FirebaseStorage.instance
+        .ref()
+        .child('posts/${Uri.file(postImage.path).pathSegments.last}')
+        .putFile(postImage)
+        .then((value) {
+      value.ref.getDownloadURL().then((value) {
+        print(value);
+        createPost(
+          text: text,
+          dateTime: dateTime,
+          postImage: value,
+        );
+      }).catchError((error) {
+        emit(SocialCreatePostErrorState());
+      });
+    }).catchError((error) {
+      emit(SocialCreatePostErrorState());
+    });
+  }
+
+  void createPost({
+    @required String dateTime,
+    @required String text,
+    String postImage,
+  }) {
+    emit(SocialCreatePostLoadingState());
+
+    PostModel model = PostModel(
+      name: userModel.name,
+      image: userModel.image,
+      uId: userModel.uId,
+      dateTime: dateTime,
+      text: text,
+      postImage: postImage ?? '',
+    );
+
+    FirebaseFirestore.instance
+        .collection('posts')
+        .add(model.toMap())
+        .then((value) {
+      emit(SocialCreatePostSuccessState());
+    }).catchError((error) {
+      emit(SocialCreatePostErrorState());
+    });
+  }
+
+  List<PostModel> posts = [];
+  List<String> postsId = [];
+  List<int> likes = [];
+  List<int> comments = [];
+
+  void getPosts()
+  {
+    FirebaseFirestore.instance.collection('posts').get().then((value)
+    {
+      value.docs.forEach((element)
+      {
+        element.reference
+            .collection('likes')
+            .get()
+            .then((value)
+        {
+          likes.add(value.docs.length);
+          comments.add(value.docs.length);
+          postsId.add(element.id);
+          posts.add(PostModel.fromJson(element.data()));
+        })
+            .catchError((error){});
+      });
+
+      emit(SocialGetPostsSuccessState());
+    }).catchError((error) {
+      print(error.toString());
+      emit(SocialGetPostsErrorState(error.toString()));
+    });
+  }
+
+  void likePost(String postId) {
+    FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('likes')
+        .doc(userModel.uId)
+        .set({
+      'like': true,
+    }).then((value) {
+      emit(SocialLikePostSuccessState());
+    }).catchError((error) {
+      emit(SocialLikePostErrorState(error.toString()));
+    });
+  }
+
+  void commentPost(postId){
+    FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .doc(userModel.uId)
+        .set({
+      'comment': true,
+    }).then((value) {
+      emit(SocialCommentPostSuccessState());
+    }).catchError((error) {
+      emit(SocialCommentPostErrorState(error.toString()));
+    });
+  }
+
+  List<SocialUserModel> users = [];
+
+  void getUsers()
+  {
+    FirebaseFirestore.instance.collection('users').get().then((value)
+    {
+      value.docs.forEach((element)
+      {
+        users.add(SocialUserModel.fromJson(element.data()));
+      });
+
+      emit(SocialGetAllUsersSuccessState());
+    }).catchError((error) {
+      print(error.toString());
+      emit(SocialGetAllUsersErrorState(error.toString()));
+    });
+  }
+
 }
