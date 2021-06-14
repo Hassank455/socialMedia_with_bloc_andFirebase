@@ -321,7 +321,7 @@ class FeedsScreen extends StatelessWidget {
                             controller: commentController,
                             label: 'write a comment ...',
                           ),*/
-                         // TextFormField(decoration: InputDecoration(hintText: 'write a comment ...'),)
+                         // TextFormField(decoration: InputDecoration(border: InputBorder.none,hintText: 'write a comment ...'),)
                         ],
                       ),
                       onTap: () {
